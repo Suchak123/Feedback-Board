@@ -1,4 +1,3 @@
-// src/app/page.tsx
 'use client';
 
 import React from 'react';
@@ -20,7 +19,6 @@ import {
 import { Feedback } from '@/types/feedback';
 
 export default function Home() {
-  // Zustand stores
   const {
     isModalOpen,
     editingFeedback,
@@ -35,7 +33,6 @@ export default function Home() {
 
   const { hasUpvoted, addUpvote } = useUpvoteStore();
 
-  // TanStack Query hooks
   const { data: feedbackList = [], isLoading, error } = useFeedbackList({
     status: statusFilter,
     sort: sortOrder,
@@ -46,7 +43,6 @@ export default function Home() {
   const deleteMutation = useDeleteFeedback();
   const upvoteMutation = useUpvoteFeedback();
 
-  // Handlers
   const handleCreate = async (data: FeedbackFormData) => {
     try {
       await createMutation.mutateAsync(data);
@@ -108,7 +104,6 @@ export default function Home() {
     closeModal();
   };
 
-  // Show error state
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -165,7 +160,6 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Feedback List */}
         <FeedbackList
           feedback={feedbackList}
           onUpvote={handleUpvote}
@@ -177,7 +171,6 @@ export default function Home() {
         />
       </main>
 
-      {/* Create/Edit Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

@@ -73,17 +73,13 @@ export function useUpvoteFeedback() {
   return useMutation({
     mutationFn: (id: string) => upvoteFeedback(id),
     
-    // Optimistic update
     onMutate: async (feedbackId) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: feedbackKeys.lists() });
 
-      // Snapshot the previous value
       const previousFeedback = queryClient.getQueriesData({ 
         queryKey: feedbackKeys.lists() 
       });
 
-      // Optimistically update all lists
       queryClient.setQueriesData<Feedback[]>(
         { queryKey: feedbackKeys.lists() },
         (old) => {
@@ -99,7 +95,6 @@ export function useUpvoteFeedback() {
       return { previousFeedback };
     },
     
-    // On error, rollback
     onError: (err, feedbackId, context) => {
       if (context?.previousFeedback) {
         context.previousFeedback.forEach(([queryKey, data]) => {
@@ -108,7 +103,6 @@ export function useUpvoteFeedback() {
       }
     },
     
-    // Always refetch after error or success
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: feedbackKeys.lists() });
     },
