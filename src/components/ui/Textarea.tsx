@@ -12,6 +12,7 @@ export const Textarea: React.FC<TextareaProps> = ({
     helperText,
     className = '',
     id,
+    value,
     ...props
 }) => {
     const textareaId = id || label?.toLowerCase().replace(/\s+/g, '-');
@@ -29,6 +30,7 @@ export const Textarea: React.FC<TextareaProps> = ({
 
             <textarea
                 id={textareaId}
+                value={value || ''}
                 className={`
                    w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-none
                    ${error ? 'border-red-500' : 'border-gray-300'}

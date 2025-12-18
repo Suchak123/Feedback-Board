@@ -1,65 +1,199 @@
-import Image from "next/image";
+// src/app/page.tsx
+'use client';
+
+import React from 'react';
+import { Header } from '@/components/layout/Header';
+import { FeedbackFilters } from '@/components/feedback/FeedbackFilters';
+import { FeedbackList } from '@/components/feedback/FeedbackList';
+import { FeedbackForm, FeedbackFormData } from '@/components/feedback/FeedbackForm';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
+import { useUIStore } from '@/store/uiStore';
+import { useUpvoteStore } from '@/store/upvoteStore';
+import {
+  useFeedbackList,
+  useCreateFeedback,
+  useUpdateFeedback,
+  useDeleteFeedback,
+  useUpvoteFeedback,
+} from '@/hooks/useFeedback';
+import { Feedback } from '@/types/feedback';
 
 export default function Home() {
+  // Zustand stores
+  const {
+    isModalOpen,
+    editingFeedback,
+    statusFilter,
+    sortOrder,
+    openModal,
+    closeModal,
+    setEditingFeedback,
+    setStatusFilter,
+    setSortOrder,
+  } = useUIStore();
+
+  const { hasUpvoted, addUpvote } = useUpvoteStore();
+
+  // TanStack Query hooks
+  const { data: feedbackList = [], isLoading, error } = useFeedbackList({
+    status: statusFilter,
+    sort: sortOrder,
+  });
+
+  const createMutation = useCreateFeedback();
+  const updateMutation = useUpdateFeedback();
+  const deleteMutation = useDeleteFeedback();
+  const upvoteMutation = useUpvoteFeedback();
+
+  // Handlers
+  const handleCreate = async (data: FeedbackFormData) => {
+    try {
+      await createMutation.mutateAsync(data);
+      closeModal();
+    } catch (error) {
+      console.error('Failed to create feedback:', error);
+      alert('Failed to create feedback. Please try again.');
+    }
+  };
+
+  const handleUpdate = async (data: FeedbackFormData) => {
+    if (!editingFeedback) return;
+
+    try {
+      await updateMutation.mutateAsync({
+        id: editingFeedback.id,
+        data,
+      });
+      closeModal();
+    } catch (error) {
+      console.error('Failed to update feedback:', error);
+      alert('Failed to update feedback. Please try again.');
+    }
+  };
+
+  const handleUpvote = async (id: string) => {
+    if (hasUpvoted(id)) {
+      alert('You have already upvoted this feedback!');
+      return;
+    }
+
+    try {
+      await upvoteMutation.mutateAsync(id);
+      addUpvote(id);
+    } catch (error) {
+      console.error('Failed to upvote feedback:', error);
+      alert('Failed to upvote. Please try again.');
+    }
+  };
+
+  const handleEdit = (feedback: Feedback) => {
+    setEditingFeedback(feedback);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this feedback?')) {
+      return;
+    }
+
+    try {
+      await deleteMutation.mutateAsync(id);
+    } catch (error) {
+      console.error('Failed to delete feedback:', error);
+      alert('Failed to delete feedback. Please try again.');
+    }
+  };
+
+  const handleCloseModal = () => {
+    closeModal();
+  };
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-red-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <h3 className="mt-2 text-lg font-medium text-red-900">
+              Failed to load feedback
+            </h3>
+            <p className="mt-1 text-sm text-red-700">
+              {error instanceof Error ? error.message : 'An error occurred'}
+            </p>
+            <Button
+              variant="primary"
+              className="mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+
+      <FeedbackFilters
+        currentStatus={statusFilter}
+        currentSort={sortOrder}
+        onStatusChange={setStatusFilter}
+        onSortChange={setSortOrder}
+      />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <Button variant="primary" size="lg" onClick={openModal}>
+            + Create Feedback
+          </Button>
+        </div>
+
+        {/* Feedback List */}
+        <FeedbackList
+          feedback={feedbackList}
+          onUpvote={handleUpvote}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          getUpvotedIds={() => useUpvoteStore.getState().upvotedIds}
+          isUpvoting={upvoteMutation.isPending ? upvoteMutation.variables : null}
+          isLoading={isLoading}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
       </main>
+
+      {/* Create/Edit Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={editingFeedback ? 'Edit Feedback' : 'Create New Feedback'}
+      >
+        <FeedbackForm
+          onSubmit={editingFeedback ? handleUpdate : handleCreate}
+          onCancel={handleCloseModal}
+          initialData={editingFeedback || undefined}
+          isLoading={
+            editingFeedback
+              ? updateMutation.isPending
+              : createMutation.isPending
+          }
+        />
+      </Modal>
     </div>
   );
 }

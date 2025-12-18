@@ -12,6 +12,7 @@ export const Input: React.FC<InputProps> = ({
     helperText,
     className = '',
     id,
+    value,
     ...props
 }) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
@@ -30,6 +31,7 @@ export const Input: React.FC<InputProps> = ({
             
             <input
                 id={inputId}
+                value={value || ''}
                 className={`
                 w-full px-3 py-2 border rounded-lg 
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
