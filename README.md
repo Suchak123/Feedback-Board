@@ -115,6 +115,7 @@ Framework: Next.js 15.1.0 (App Router)
 UI Library: React 19.0.0
 Language: TypeScript 5
 Styling: Tailwind CSS 3.4.1
+
 State Management:
 
 TanStack Query 5.62.2 (server state)
@@ -138,6 +139,11 @@ Development Tools
 Linting: ESLint 9
 Package Manager: npm
 Version Control: Git
+
+Known Issues
+
+Deployment Issue
+Attractive designs
 
 Future Improvements
 
