@@ -6,12 +6,14 @@ services:
     container_name: feedback-board-mongodb-dev
     restart: always
     ports:
-      - "27017:27017"
+      - "${MONGO_PORT}:27017"
+    environment:
+      - MONGO_INITDB_DATABASE:${MONGO_DB_NAME}
     volumes:
       - mongodb_data_dev:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/feedback_board --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/${MONGO_DB_NAME} --quiet
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,7 +25,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/${MONGO_DB_NAME}
       ME_CONFIG_BASICAUTH: false
     depends_on:
       - mongodb
