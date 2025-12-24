@@ -7,10 +7,10 @@ import { ObjectId } from "mongodb";
 
 export async function GET(
     request: NextRequest,
-    context : {params: Promise<{id: string}>}
+    {params} : {params: Promise<{id: string}>}
 ) {
     try {
-        const { id } = await context.params;
+        const { id } = await params;
 
         if(!ObjectId.isValid(id)) {
             return NextResponse.json(
@@ -56,10 +56,10 @@ export async function GET(
 
 export async function PATCH(
     request: NextRequest,
-    context : {params: Promise<{id: string}>}
+    {params} : {params: Promise<{id: string}>}
 ) {
     try {
-        const { id } = await context.params;
+        const { id } = await params;
 
         if (!ObjectId.isValid(id)) {
             return NextResponse.json(
@@ -124,10 +124,10 @@ export async function PATCH(
 
 export async function DELETE(
     request:NextRequest,
-    context : {params: Promise<{id: string}>}
+    {params} : {params: Promise<{id: string}>}
 ) {
     try {
-        const { id } = await context.params;
+        const { id } = await params;
 
         if (!ObjectId.isValid(id)) {
             return NextResponse.json(
