@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from '@/lib/db';
 import { FeedbackDocument, Feedback} from '@/types/feedback';
 import { ObjectId } from "mongodb";
-import { error } from "console";
+
 
 export async function POST(
     request:NextRequest,

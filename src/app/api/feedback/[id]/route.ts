@@ -3,8 +3,7 @@ import { getDb } from '@/lib/db';
 import { updateFeedbackSchema } from "@/lib/validators";
 import { FeedbackDocument, Feedback } from "@/types/feedback";
 import { ObjectId } from "mongodb";
-import { error } from "console";
-import { get } from "http";
+
 
 export async function GET(
     request: NextRequest,

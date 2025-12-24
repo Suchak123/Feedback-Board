@@ -2,8 +2,7 @@ import { NextRequest, NextResponse} from 'next/server';
 import { getDb } from '@/lib/db';
 import { FeedbackDocument, Feedback } from '@/types/feedback';
 import { createFeedbackSchema, feedbackQuerySchema } from '@/lib/validators';
-import { stat } from 'fs';
-import { error } from 'console';
+
 
 export async function GET(request: NextRequest) {
     try {
