@@ -3,6 +3,8 @@ import { getDb } from '@/lib/db';
 import { FeedbackDocument, Feedback } from '@/types/feedback';
 import { createFeedbackSchema, feedbackQuerySchema } from '@/lib/validators';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
     try {

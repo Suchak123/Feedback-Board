@@ -4,6 +4,8 @@ import { updateFeedbackSchema } from "@/lib/validators";
 import { FeedbackDocument, Feedback } from "@/types/feedback";
 import { ObjectId } from "mongodb";
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(
     request: NextRequest,
