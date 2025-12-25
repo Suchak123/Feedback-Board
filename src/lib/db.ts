@@ -1,6 +1,7 @@
 import { MongoClient, Db } from 'mongodb';
 
 const uri: string = process.env.MONGODB_URI || '';
+
 const options = {};
 
 let clientPromise: Promise<MongoClient> | null = null;
@@ -10,6 +11,7 @@ declare global {
 }
 
 function getClientPromise(): Promise<MongoClient> {
+    console.log(uri);
     if (!uri) {
         throw new Error('MongoDB URI not specified.');
     }
@@ -29,7 +31,6 @@ function getClientPromise(): Promise<MongoClient> {
     }
 }
 
-
 export default getClientPromise;
 
 export async function getDb(): Promise<Db> {
@@ -41,3 +42,4 @@ export async function getDb(): Promise<Db> {
     const dbName = process.env.MONGO_DB_NAME || 'feedback_board';
     return client.db(dbName);
 }
+
